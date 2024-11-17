@@ -13,7 +13,7 @@ import java.util.List;
 public class YogaDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "yoga_admin.db";
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     // Table for courses
     public static final String TABLE_COURSES = "courses";
