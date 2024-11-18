@@ -1,0 +1,43 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- EditText for Class ID -->
+    <EditText
+        android:id="@+id/classIdEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Class ID"
+        android:inputType="number" />
+
+    <!-- EditText for Date -->
+    <EditText
+        android:id="@+id/dateEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Date" />
+
+    <!-- EditText for Teacher Name -->
+    <EditText
+        android:id="@+id/teacherEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Teacher" />
+
+    <!-- EditText for Comment -->
+    <EditText
+        android:id="@+id/commentEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Comment" />
+
+    <!-- Button to save class -->
+    <Button
+        android:id="@+id/saveClassButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Class" />
+
+</LinearLayout>

@@ -91,4 +91,17 @@ public class Course {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    // Override toString to display course information in a readable format
+    @Override
+    public String toString() {
+        return "Course ID: " + courseid + "\n" +
+                "Day: " + dayOfWeek + "\n" +
+                "Time: " + time + "\n" +
+                "Duration: " + duration + " minutes\n" +
+                "Capacity: " + capacity + " people\n" +
+                "Price: $" + price + "\n" +
+                "Type: " + type + "\n" +
+                "Description: " + description;
+    }
 }

@@ -1,28 +1,32 @@
 package com.universalyoga.yogaadminapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.universalyoga.yogaadminapp.R;
-import com.universalyoga.yogaadminapp.database.YogaDatabaseHelper;
+import com.universalyoga.yogaadminapp.helper.YogaDatabaseHelper;
 import com.universalyoga.yogaadminapp.models.Course;
 
-import com.universalyoga.yogaadminapp.network.APIService;
-import com.universalyoga.yogaadminapp.network.RetrofitClient;
-
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     private YogaDatabaseHelper dbHelper;
-    private TextView coursesTextView;
+    private ListView coursesListView;
+    private Button addButton;
+    private Button editButton;  // Edit button to toggle edit mode
+    private TextView noCoursesTextView;
+    private CourseAdapter courseAdapter;  // Custom adapter to handle courses and "Add Class" button
+    private View actionButtonsLayout;  // Layout containing the "Add", "Update", "Delete" buttons
+    private boolean isEditMode = false;  // Flag to indicate if in edit mode
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,62 +34,122 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         dbHelper = new YogaDatabaseHelper(this);
-        coursesTextView = findViewById(R.id.coursesTextView);
+        coursesListView = findViewById(R.id.coursesListView);
+        addButton = findViewById(R.id.addButton);
+        editButton = findViewById(R.id.editButton);
+        noCoursesTextView = findViewById(R.id.noCoursesTextView);
+        actionButtonsLayout = findViewById(R.id.actionButtonsLayout);  // The layout containing Add, Update, Delete buttons
 
-        // Check if the local database is empty
-        if (dbHelper.isCoursesTableEmpty()) {
-            // Fetch courses from the API and store them locally
-            fetchCoursesFromAPI();
-        } else {
-            // Load the courses from the local database
-            loadCoursesFromDatabase();
-        }
-    }
+        // Load and display courses when MainActivity is created
+        loadCoursesFromDatabase();
 
-    private void fetchCoursesFromAPI() {
-        APIService apiService = RetrofitClient.getRetrofitInstance().create(APIService.class);
-        Call<List<Course>> call = apiService.getCourses();
-
-        call.enqueue(new Callback<List<Course>>() {
-            @Override
-            public void onResponse(Call<List<Course>> call, Response<List<Course>> response) {
-                if (response.isSuccessful()) {
-                    List<Course> courses = response.body();
-                    if (courses != null) {
-                        // Store courses in SQLite
-                        for (Course course : courses) {
-                            dbHelper.addCourse(course);
-                        }
-                        // Update the UI
-                        loadCoursesFromDatabase();
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Course>> call, Throwable t) {
-                Log.e("MainActivity", "Error fetching courses: " + t.getMessage());
-            }
+        // Navigate to AddCourseActivity when Add Button is clicked
+        addButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddCourseActivity.class);
+            startActivity(intent);
         });
+
+        // Handle the "Edit" button click to toggle edit mode
+        editButton.setOnClickListener(v -> toggleEditMode());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload the courses whenever MainActivity comes back to the foreground
+        loadCoursesFromDatabase();
+    }
+
+    // Load all courses from the database and display in ListView
     private void loadCoursesFromDatabase() {
         List<Course> courses = dbHelper.getAllCourses();
-        StringBuilder coursesText = new StringBuilder();
 
-        // Loop through the courses and add all the details to the StringBuilder
-        for (Course course : courses) {
-            coursesText.append("Course ID: ").append(course.getCourseid()).append("\n")
-                    .append("Day: ").append(course.getDayOfWeek()).append("\n")
-                    .append("Time: ").append(course.getTime()).append("\n")
-                    .append("Duration: ").append(course.getDuration()).append(" minutes\n")
-                    .append("Capacity: ").append(course.getCapacity()).append(" people\n")
-                    .append("Price: $").append(course.getPrice()).append("\n")
-                    .append("Type: ").append(course.getType()).append("\n")
-                    .append("Description: ").append(course.getDescription()).append("\n\n");
+        if (courses != null && !courses.isEmpty()) {
+            // Use the custom adapter to display courses and the "Add Class" button
+            courseAdapter = new CourseAdapter(this, courses);
+            coursesListView.setAdapter(courseAdapter);
+            coursesListView.setVisibility(ListView.VISIBLE);
+            noCoursesTextView.setVisibility(TextView.GONE); // Hide the "no courses" message
+        } else {
+            // Show the no courses message and hide the ListView
+            coursesListView.setVisibility(ListView.GONE);
+            noCoursesTextView.setVisibility(TextView.VISIBLE);
+        }
+    }
+
+    // Custom adapter for courses
+    public class CourseAdapter extends ArrayAdapter<Course> {
+
+        public CourseAdapter(MainActivity context, List<Course> courses) {
+            super(context, 0, courses);
         }
 
-        // Set the text to the TextView
-        coursesTextView.setText(coursesText.toString());
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = getLayoutInflater().inflate(R.layout.course_item, parent, false);
+            }
+
+            Course currentCourse = getItem(position);
+
+            TextView courseIdTextView = convertView.findViewById(R.id.courseIdTextView);
+            Button addClassButton = convertView.findViewById(R.id.addClassButton);  // "Add Class" button
+            TextView noClassesTextView = convertView.findViewById(R.id.noClassesTextView); // TextView for no classes message
+            TextView classesTextView = convertView.findViewById(R.id.classesTextView);  // TextView to show class details
+            ListView classesListView = convertView.findViewById(R.id.classesListView);  // ListView for classes
+
+            // Set the course ID text
+            if (currentCourse != null) {
+                courseIdTextView.setText("Course ID: " + currentCourse.getCourseid());
+            }
+
+            // Check if there are any classes under the course
+            List<String> classes = dbHelper.getClassesForCourse(currentCourse.getCourseid());
+            if (classes != null && !classes.isEmpty()) {
+                noClassesTextView.setVisibility(View.GONE);  // Hide "No classes available" message
+                StringBuilder classDetails = new StringBuilder();
+                for (String classInfo : classes) {
+                    classDetails.append(classInfo).append("\n");
+                }
+                classesTextView.setText(classDetails.toString());
+                classesTextView.setVisibility(View.VISIBLE);  // Show the class details
+                classesListView.setVisibility(View.VISIBLE);  // Show ListView for classes
+            } else {
+                noClassesTextView.setVisibility(View.VISIBLE);  // Show "No classes available" message
+                classesTextView.setVisibility(View.GONE);  // Hide class details TextView
+                classesListView.setVisibility(View.GONE);  // Hide ListView for classes
+                noClassesTextView.setText("No classes available under this course.");
+            }
+
+            // Control visibility of the "Add Class" button based on edit mode
+            if (isEditMode) {
+                addClassButton.setVisibility(View.VISIBLE);
+            } else {
+                addClassButton.setVisibility(View.GONE);  // Hide "Add Class" button when not in edit mode
+            }
+
+            // Set up the "Add Class" button click listener
+            addClassButton.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, AddClassActivity.class);
+                intent.putExtra("courseId", currentCourse.getCourseid());  // Pass course ID to AddClassActivity
+                startActivity(intent);
+            });
+
+            return convertView;
+        }
+    }
+
+    // Toggle the visibility of the Add, Update, Delete buttons and update the Edit button text
+    private void toggleEditMode() {
+        if (isEditMode) {
+            // If currently in edit mode, hide the action buttons
+            actionButtonsLayout.setVisibility(View.GONE);
+            editButton.setText("Edit");  // Change text back to Edit
+        } else {
+            // If not in edit mode, show the action buttons
+            actionButtonsLayout.setVisibility(View.VISIBLE);
+            editButton.setText("Cancel Edit");  // Change text to Cancel Edit
+        }
+        isEditMode = !isEditMode;  // Toggle the flag
     }
 }

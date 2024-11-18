@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:gravity="start">
+
+    <!-- Horizontal layout for Course ID and Add Class Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="8dp">
+
+        <!-- Course ID TextView styled as a title -->
+        <TextView
+            android:id="@+id/courseIdTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Course ID"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingEnd="8dp"
+            android:layout_gravity="start"
+            android:gravity="center_vertical" />
+
+        <!-- Add Class Button (Initially hidden, will be visible in edit mode) -->
+        <Button
+            android:id="@+id/addClassButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Class"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            android:gravity="center_vertical"/>
+    </LinearLayout>
+
+    <!-- Check if there are no classes -->
+    <TextView
+        android:id="@+id/noClassesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No classes available"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:paddingBottom="8dp"/>
+
+    <!-- Classes TextView (Will show classes when available) -->
+    <TextView
+        android:id="@+id/classesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Classes will be shown here"
+        android:textSize="14sp"
+        android:visibility="gone"
+        android:paddingBottom="8dp"/>
+
+    <!-- ListView to display each class inside its own view -->
+    <ListView
+        android:id="@+id/classesListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+</LinearLayout>
