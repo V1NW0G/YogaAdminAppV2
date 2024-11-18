@@ -16,7 +16,7 @@ import java.util.List;
 public class YogaDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "yoga.db";
-    private static final int DATABASE_VERSION = 3;  // Incremented version for adding classes table
+    private static final int DATABASE_VERSION = 4;  // Incremented version for adding classes table
 
     // Courses Table
     private static final String TABLE_COURSES = "courses";
