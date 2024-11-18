@@ -1,0 +1,82 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Course Details -->
+    <TextView
+        android:id="@+id/courseTitleTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:text="Course Title"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/courseDayTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Day: Monday"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/courseTimeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Time: 12:00"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/coursePriceTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Price: $100"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/courseDurationTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Duration: 60 minutes"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/courseCapacityTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Capacity: 20 people"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/courseTypeTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Type: Yoga"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/courseDescriptionTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Description: Introduction to yoga"
+        android:textSize="16sp" />
+
+    <!-- Classes Details -->
+    <TextView
+        android:id="@+id/classDetailsLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Class Details"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingTop="16dp" />
+
+    <TextView
+        android:id="@+id/classListTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Class details will be shown here."
+        android:textSize="16sp"
+        android:paddingTop="8dp" />
+</LinearLayout>

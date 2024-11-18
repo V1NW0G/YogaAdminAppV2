@@ -3,6 +3,7 @@ package com.universalyoga.yogaadminapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
             TextView courseIdTextView = convertView.findViewById(R.id.courseIdTextView);
             Button addClassButton = convertView.findViewById(R.id.addClassButton);  // "Add Class" button
+            Button viewDetailsButton = convertView.findViewById(R.id.viewDetailsButton);  // "View Details" button
             TextView noClassesTextView = convertView.findViewById(R.id.noClassesTextView); // TextView for no classes message
             TextView classesTextView = convertView.findViewById(R.id.classesTextView);  // TextView to show class details
             ListView classesListView = convertView.findViewById(R.id.classesListView);  // ListView for classes
@@ -133,6 +135,17 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, AddClassActivity.class);
                 intent.putExtra("courseId", currentCourse.getCourseid());  // Pass course ID to AddClassActivity
                 startActivity(intent);
+            });
+
+            // Set up the "View Details" button click listener
+            viewDetailsButton.setOnClickListener(v -> {
+                if (currentCourse != null) {
+                    Intent intent = new Intent(MainActivity.this, CourseDetailActivity.class);
+                    int courseId = currentCourse.getCourseid();
+                    Log.d("MainActivity", "Passing courseId: " + courseId);  // Log the courseId to debug
+                    intent.putExtra("courseId", String.valueOf(courseId));  // Pass courseId as a String
+                    startActivity(intent);
+                }
             });
 
             return convertView;

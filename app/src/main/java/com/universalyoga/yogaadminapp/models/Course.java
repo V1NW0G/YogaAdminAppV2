@@ -3,6 +3,7 @@ package com.universalyoga.yogaadminapp.models;
 import com.google.gson.annotations.SerializedName;
 
 public class Course {
+
     private int courseid;
 
     @SerializedName("day_of_week")
@@ -90,6 +91,11 @@ public class Course {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    // Method to generate a title for the course (this can be modified as needed)
+    public String getTitle() {
+        return "Course: " + dayOfWeek + " - " + time;  // Title based on the day of the week and time
     }
 
     // Override toString to display course information in a readable format

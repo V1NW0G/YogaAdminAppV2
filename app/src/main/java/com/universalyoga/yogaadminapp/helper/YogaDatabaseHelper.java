@@ -90,6 +90,30 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public Course getCourseById(int courseId) {
+        Course course = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_COURSES + " WHERE " + KEY_COURSE_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(courseId)});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            course = new Course(
+                    cursor.getInt(cursor.getColumnIndex(KEY_COURSE_ID)),
+                    cursor.getString(cursor.getColumnIndex(KEY_DAY_OF_WEEK)),
+                    cursor.getString(cursor.getColumnIndex(KEY_TIME)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_DURATION)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_CAPACITY)),
+                    cursor.getDouble(cursor.getColumnIndex(KEY_PRICE)),
+                    cursor.getString(cursor.getColumnIndex(KEY_TYPE)),
+                    cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION))
+            );
+            cursor.close();
+        }
+
+        db.close();
+        return course;
+    }
+
     // Add a new course to the courses table
     public void addCourse(Course course) {
         SQLiteDatabase db = this.getWritableDatabase();
