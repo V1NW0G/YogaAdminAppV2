@@ -37,7 +37,7 @@
             android:gravity="center_vertical"/>
     </LinearLayout>
 
-    <!-- Check if there are no classes -->
+    <!-- No Classes TextView (Visible if no classes are available) -->
     <TextView
         android:id="@+id/noClassesTextView"
         android:layout_width="wrap_content"
@@ -57,12 +57,14 @@
         android:visibility="gone"
         android:paddingBottom="8dp"/>
 
-    <!-- ListView to display each class inside its own view -->
+    <!-- ListView to display classes -->
     <ListView
         android:id="@+id/classesListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
+
+    <!-- View Details Button to navigate to Course Detail -->
     <Button
         android:id="@+id/viewDetailsButton"
         android:layout_width="wrap_content"

@@ -11,8 +11,10 @@ import android.widget.TextView;
 
 import com.universalyoga.yogaadminapp.R;
 import com.universalyoga.yogaadminapp.activities.AddClassActivity;
+import com.universalyoga.yogaadminapp.activities.CourseDetailActivity;
 import com.universalyoga.yogaadminapp.helper.YogaDatabaseHelper;
 import com.universalyoga.yogaadminapp.models.Course;
+import com.universalyoga.yogaadminapp.models.Class;
 
 import java.util.List;
 
@@ -39,6 +41,7 @@ public class CourseAdapter extends ArrayAdapter<Course> {
 
         TextView courseIdTextView = convertView.findViewById(R.id.courseIdTextView);
         Button addClassButton = convertView.findViewById(R.id.addClassButton);
+        Button viewDetailsButton = convertView.findViewById(R.id.viewDetailsButton);
         TextView noClassesTextView = convertView.findViewById(R.id.noClassesTextView);
         TextView classesTextView = convertView.findViewById(R.id.classesTextView);
 
@@ -47,17 +50,22 @@ public class CourseAdapter extends ArrayAdapter<Course> {
             courseIdTextView.setText("Course ID: " + currentCourse.getCourseid());
         }
 
-        // Check if there are any classes under this course
-        List<String> classes = dbHelper.getClassesForCourse(currentCourse.getCourseid());
+        // Fetch the list of classes for the course (List<Class>)
+        List<Class> classes = dbHelper.getClassesForCourse(currentCourse.getCourseid());  // Now using List<Class>
+
         if (classes != null && !classes.isEmpty()) {
-            // Classes are available, hide no classes text and show class details
-            noClassesTextView.setVisibility(View.GONE);
+            noClassesTextView.setVisibility(View.GONE);  // Hide "No classes available" message
             StringBuilder classDetails = new StringBuilder();
-            for (String classInfo : classes) {
-                classDetails.append(classInfo).append("\n");
+            for (Class aClass : classes) {
+                // Append class details (Class ID, Date, Teacher, Comment)
+                classDetails.append("Class ID: ").append(aClass.getClassid())
+                        .append("\nDate: ").append(aClass.getDate())
+                        .append("\nTeacher: ").append(aClass.getTeacher())
+                        .append("\nComment: ").append(aClass.getComment())
+                        .append("\n\n");  // Separate each class details with a new line
             }
             classesTextView.setText(classDetails.toString());
-            classesTextView.setVisibility(View.VISIBLE);
+            classesTextView.setVisibility(View.VISIBLE);  // Show the class details
         } else {
             // No classes for this course
             noClassesTextView.setVisibility(View.VISIBLE);
@@ -69,6 +77,16 @@ public class CourseAdapter extends ArrayAdapter<Course> {
             Intent intent = new Intent(context, AddClassActivity.class);
             intent.putExtra("courseId", currentCourse.getCourseid());  // Pass course ID to AddClassActivity
             context.startActivity(intent);
+        });
+
+        // Set up the "View Details" button click listener
+        viewDetailsButton.setOnClickListener(v -> {
+            if (currentCourse != null) {
+                Intent intent = new Intent(context, CourseDetailActivity.class);
+                int courseId = currentCourse.getCourseid();
+                intent.putExtra("courseId", String.valueOf(courseId));  // Pass courseId as a String
+                context.startActivity(intent);
+            }
         });
 
         return convertView;

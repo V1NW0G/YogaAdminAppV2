@@ -239,19 +239,22 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Get all classes for a specific course
-    public List<String> getClassesForCourse(int courseId) {
-        List<String> classList = new ArrayList<>();
+    public List<Class> getClassesForCourse(int courseId) {
+        List<Class> classList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT * FROM " + TABLE_CLASSES + " WHERE " + KEY_COURSE_FOREIGN_KEY + " = ?";
         Cursor cursor = db.rawQuery(selectQuery, new String[]{String.valueOf(courseId)});
 
         if (cursor.moveToFirst()) {
             do {
-                String classDetails = "Class ID: " + cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)) +
-                        ", Date: " + cursor.getString(cursor.getColumnIndex(KEY_DATE)) +
-                        ", Teacher: " + cursor.getString(cursor.getColumnIndex(KEY_TEACHER)) +
-                        ", Comment: " + cursor.getString(cursor.getColumnIndex(KEY_COMMENT));
-                classList.add(classDetails);
+                Class aClass = new Class(
+                        cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),
+                        cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
+                        cursor.getString(cursor.getColumnIndex(KEY_DATE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
+                        cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
+                );
+                classList.add(aClass);
             } while (cursor.moveToNext());
         }
         cursor.close();

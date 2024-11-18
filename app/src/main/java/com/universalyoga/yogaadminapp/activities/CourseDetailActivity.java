@@ -1,6 +1,7 @@
 package com.universalyoga.yogaadminapp.activities;
 
 import android.os.Bundle;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
@@ -10,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.universalyoga.yogaadminapp.R;
 import com.universalyoga.yogaadminapp.helper.YogaDatabaseHelper;
 import com.universalyoga.yogaadminapp.models.Course;
+import com.universalyoga.yogaadminapp.models.Class;
+import com.universalyoga.yogaadminapp.adapter.ClassAdapter;
 
 import java.util.List;
 
@@ -24,7 +27,7 @@ public class CourseDetailActivity extends AppCompatActivity {
     private TextView courseCapacityTextView;
     private TextView courseTypeTextView;
     private TextView courseDescriptionTextView;
-    private TextView classListTextView;
+    private ListView classListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,8 @@ public class CourseDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_course_detail);
 
         dbHelper = new YogaDatabaseHelper(this);
+
+        // Initialize views
         courseTitleTextView = findViewById(R.id.courseTitleTextView);
         courseDayTextView = findViewById(R.id.courseDayTextView);
         courseTimeTextView = findViewById(R.id.courseTimeTextView);
@@ -40,16 +45,17 @@ public class CourseDetailActivity extends AppCompatActivity {
         courseCapacityTextView = findViewById(R.id.courseCapacityTextView);
         courseTypeTextView = findViewById(R.id.courseTypeTextView);
         courseDescriptionTextView = findViewById(R.id.courseDescriptionTextView);
-        classListTextView = findViewById(R.id.classListTextView);
+        classListView = findViewById(R.id.classListView);  // Changed from TextView to ListView
 
-        // Get the course ID passed from the MainActivity
+        // Get the course ID passed from MainActivity
         String courseIdString = getIntent().getStringExtra("courseId");
         Log.d("CourseDetailActivity", "Received courseId: " + courseIdString);
 
         if (courseIdString != null && !courseIdString.isEmpty()) {
             try {
                 int courseId = Integer.parseInt(courseIdString);  // Convert String to int
-                loadCourseDetails(courseId);  // Call method to load course details
+                loadCourseDetails(courseId);  // Load course details
+                loadClassList(courseId);  // Load classes under this course
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Invalid course ID.", Toast.LENGTH_SHORT).show();
             }
@@ -60,7 +66,7 @@ public class CourseDetailActivity extends AppCompatActivity {
 
     // Method to load course details from the database and display them
     private void loadCourseDetails(int courseId) {
-        Course course = dbHelper.getCourseById(courseId);  // Fetch the course details from the database
+        Course course = dbHelper.getCourseById(courseId);  // Fetch course details from the database
 
         if (course != null) {
             // Set the course details in the UI
@@ -72,20 +78,19 @@ public class CourseDetailActivity extends AppCompatActivity {
             courseCapacityTextView.setText("Capacity: " + course.getCapacity() + " people");
             courseTypeTextView.setText("Type: " + course.getType());
             courseDescriptionTextView.setText("Description: " + course.getDescription());
-
-            // Fetch and display the classes under this course
-            List<String> classes = dbHelper.getClassesForCourse(courseId);
-            if (classes != null && !classes.isEmpty()) {
-                StringBuilder classDetails = new StringBuilder();
-                for (String classInfo : classes) {
-                    classDetails.append(classInfo).append("\n");
-                }
-                classListTextView.setText(classDetails.toString());
-            } else {
-                classListTextView.setText("No classes available.");
-            }
         } else {
             Toast.makeText(this, "Course not found.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Method to load the list of classes under this course
+    private void loadClassList(int courseId) {
+        List<Class> classes = dbHelper.getClassesForCourse(courseId);  // Fetch classes for the given course
+        if (classes != null && !classes.isEmpty()) {
+            ClassAdapter classAdapter = new ClassAdapter(this, classes);  // Use the ClassAdapter to display classes
+            classListView.setAdapter(classAdapter);
+        } else {
+            Toast.makeText(this, "No classes available.", Toast.LENGTH_SHORT).show();
         }
     }
 }

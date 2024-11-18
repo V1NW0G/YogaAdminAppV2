@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.universalyoga.yogaadminapp.R;
 import com.universalyoga.yogaadminapp.helper.YogaDatabaseHelper;
 import com.universalyoga.yogaadminapp.models.Course;
+import com.universalyoga.yogaadminapp.models.Class;
+import com.universalyoga.yogaadminapp.adapter.ClassAdapter;
 
 import java.util.List;
 
@@ -97,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
             Button addClassButton = convertView.findViewById(R.id.addClassButton);  // "Add Class" button
             Button viewDetailsButton = convertView.findViewById(R.id.viewDetailsButton);  // "View Details" button
             TextView noClassesTextView = convertView.findViewById(R.id.noClassesTextView); // TextView for no classes message
-            TextView classesTextView = convertView.findViewById(R.id.classesTextView);  // TextView to show class details
             ListView classesListView = convertView.findViewById(R.id.classesListView);  // ListView for classes
 
             // Set the course ID text
@@ -105,29 +106,19 @@ public class MainActivity extends AppCompatActivity {
                 courseIdTextView.setText("Course ID: " + currentCourse.getCourseid());
             }
 
-            // Check if there are any classes under the course
-            List<String> classes = dbHelper.getClassesForCourse(currentCourse.getCourseid());
-            if (classes != null && !classes.isEmpty()) {
-                noClassesTextView.setVisibility(View.GONE);  // Hide "No classes available" message
-                StringBuilder classDetails = new StringBuilder();
-                for (String classInfo : classes) {
-                    classDetails.append(classInfo).append("\n");
-                }
-                classesTextView.setText(classDetails.toString());
-                classesTextView.setVisibility(View.VISIBLE);  // Show the class details
-                classesListView.setVisibility(View.VISIBLE);  // Show ListView for classes
-            } else {
-                noClassesTextView.setVisibility(View.VISIBLE);  // Show "No classes available" message
-                classesTextView.setVisibility(View.GONE);  // Hide class details TextView
-                classesListView.setVisibility(View.GONE);  // Hide ListView for classes
-                noClassesTextView.setText("No classes available under this course.");
-            }
+            // Fetch the list of classes for the course (List<Class>)
+            List<Class> classes = dbHelper.getClassesForCourse(currentCourse.getCourseid());  // Now using List<Class>
 
-            // Control visibility of the "Add Class" button based on edit mode
-            if (isEditMode) {
-                addClassButton.setVisibility(View.VISIBLE);
+            if (classes != null && !classes.isEmpty()) {
+                // Classes are available, hide "No classes available" message and show class details
+                noClassesTextView.setVisibility(View.GONE);
+                ClassAdapter classAdapter = new ClassAdapter(MainActivity.this, classes);
+                classesListView.setAdapter(classAdapter);
+                classesListView.setVisibility(View.VISIBLE);
             } else {
-                addClassButton.setVisibility(View.GONE);  // Hide "Add Class" button when not in edit mode
+                // No classes for this course
+                noClassesTextView.setVisibility(View.VISIBLE);
+                classesListView.setVisibility(View.GONE);
             }
 
             // Set up the "Add Class" button click listener
