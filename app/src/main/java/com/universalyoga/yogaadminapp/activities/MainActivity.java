@@ -3,8 +3,8 @@ package com.universalyoga.yogaadminapp.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.util.Log;
 import android.view.ViewGroup;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -26,12 +26,12 @@ public class MainActivity extends AppCompatActivity {
     private YogaDatabaseHelper dbHelper;
     private ListView coursesListView;
     private Button addButton;
-    private Button editButton;  // Edit button to toggle edit mode
+    private Button editButton;  // "Search" button, which will toggle debug mode with long press
     private TextView noCoursesTextView;
-    private CourseAdapter courseAdapter;  // Custom adapter to handle courses and "Add Class" button
+    private CourseAdapter courseAdapter;
     private View actionButtonsLayout;  // Layout containing the "Add", "Update", "Delete" buttons
-    private boolean isEditMode = false;  // Flag to indicate if in edit mode
-    private Button deleteButton;
+    private boolean isEditMode = false;
+    private Button deleteButton, updateButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         noCoursesTextView = findViewById(R.id.noCoursesTextView);
         actionButtonsLayout = findViewById(R.id.actionButtonsLayout);  // The layout containing Add, Update, Delete buttons
         deleteButton = findViewById(R.id.deleteButton);
+        updateButton = findViewById(R.id.updateButton);
 
         // Load and display courses when MainActivity is created
         loadCoursesFromDatabase();
@@ -55,11 +56,17 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Handle the "Edit" button click to toggle edit mode
-        editButton.setOnClickListener(v -> toggleEditMode());
+        // Handle the "Search" button click to toggle edit mode
+        editButton.setOnClickListener(v -> toggleSearchMode());
 
+        // Long press the Search button to enter debug mode (show Update/Delete buttons)
+        editButton.setOnLongClickListener(v -> {
+            toggleEditMode();
+            return true; // Indicating that the long click is consumed
+        });
+
+        // Handle delete action when the delete button is clicked
         deleteButton.setOnClickListener(v -> deleteAllCourses());
-
     }
 
     @Override
@@ -113,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Fetch the list of classes for the course (List<Class>)
-            List<Class> classes = dbHelper.getClassesForCourse(currentCourse.getCourseid());  // Now using List<Class>
+            List<Class> classes = dbHelper.getClassesForCourse(currentCourse.getCourseid());
 
             if (classes != null && !classes.isEmpty()) {
                 // Classes are available, hide "No classes available" message and show class details
@@ -132,11 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 if (currentCourse != null) {
                     // Create an intent to navigate to the AddClassActivity
                     Intent intent = new Intent(MainActivity.this, AddClassActivity.class);
-
-                    // Pass the course ID to the AddClassActivity
                     intent.putExtra("courseId", currentCourse.getCourseid());
-
-                    // Start the activity
                     startActivity(intent);
                 }
             });
@@ -146,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
                 if (currentCourse != null) {
                     Intent intent = new Intent(MainActivity.this, CourseDetailActivity.class);
                     int courseId = currentCourse.getCourseid();
-                    Log.d("MainActivity", "Passing courseId: " + courseId);  // Log the courseId to debug
                     intent.putExtra("courseId", String.valueOf(courseId));  // Pass courseId as a String
                     startActivity(intent);
                 }
@@ -163,34 +165,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Toggle the visibility of the Add, Update, Delete buttons and update the Edit button text
+    // Toggle the visibility of the Update and Delete buttons in debug mode
     private void toggleEditMode() {
         if (isEditMode) {
-            // If currently in edit mode, hide the action buttons
-            actionButtonsLayout.setVisibility(View.VISIBLE);
-            editButton.setText("Edit");  // Change text back to Edit
-        } else {
-            // If not in edit mode, show the action buttons
             actionButtonsLayout.setVisibility(View.GONE);
-            editButton.setText("Cancel Edit");  // Change text to Cancel Edit
+            editButton.setText("Search");
+        } else {
+            actionButtonsLayout.setVisibility(View.VISIBLE);
+            editButton.setText("Search");
         }
 
-        // Toggle the visibility of the "Add Class" button in the adapter
-        isEditMode = !isEditMode;  // Toggle the flag
+        isEditMode = !isEditMode;
+        courseAdapter.notifyDataSetChanged();
+    }
 
-        // Ensure that the adapter is initialized before calling notifyDataSetChanged()
-        if (courseAdapter != null) {
-            courseAdapter.notifyDataSetChanged();  // Update the adapter if it is initialized
-        }
+    // Toggle Search mode for edit button
+    private void toggleSearchMode() {
+        // Logic for search will go here later
     }
 
     private void deleteAllCourses() {
-        // Confirm deletion
         new android.app.AlertDialog.Builder(this)
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure you want to delete all courses and their associated classes?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    // Call the helper method to clear the database
                     dbHelper.clearDatabase();
                     loadCoursesFromDatabase();  // Refresh the list after deletion
                     Toast.makeText(MainActivity.this, "All courses and classes deleted.", Toast.LENGTH_SHORT).show();
