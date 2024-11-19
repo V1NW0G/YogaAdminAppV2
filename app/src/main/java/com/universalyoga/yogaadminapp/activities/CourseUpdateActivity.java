@@ -250,17 +250,19 @@ public class CourseUpdateActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 Log.d("CourseUpdateActivity", "Delete response code: " + response.code());  // Log response code
                 if (response.isSuccessful()) {
+                    // Delete the course locally after backend success
+                    dbHelper.deleteCourse(courseId);
+                    // Delete associated classes
+                    dbHelper.deleteClassesForCourse(courseId);
                     Toast.makeText(CourseUpdateActivity.this, "Course and its classes deleted successfully.", Toast.LENGTH_SHORT).show();
                     finish();  // Navigate back to CourseListActivity
                 } else {
-                    Toast.makeText(CourseUpdateActivity.this, "Failed to delete course: " + response.message(), Toast.LENGTH_SHORT).show();
-                    Log.e("CourseUpdateActivity", "Error deleting course: " + response.message());  // Log the error message
+                    Toast.makeText(CourseUpdateActivity.this, "Failed to delete course.", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("CourseUpdateActivity", "Error: " + t.getMessage());  // Log the error message
                 Toast.makeText(CourseUpdateActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

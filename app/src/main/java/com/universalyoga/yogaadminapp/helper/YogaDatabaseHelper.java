@@ -274,4 +274,32 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
 
         db.close();
     }
+
+    public void deleteCourse(int courseId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Delete all classes related to the course first
+        db.delete(TABLE_CLASSES, KEY_COURSE_FOREIGN_KEY + " = ?", new String[]{String.valueOf(courseId)});
+
+        // Delete the course
+        db.delete(TABLE_COURSES, KEY_COURSE_ID + " = ?", new String[]{String.valueOf(courseId)});
+        db.close();
+    }
+
+    public void deleteClassesForCourse(int courseId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // Delete all classes for the given course ID
+        db.delete(TABLE_CLASSES, KEY_COURSE_FOREIGN_KEY + " = ?", new String[]{String.valueOf(courseId)});
+        db.close();
+    }
+
+    // Delete a class by classid
+    public void deleteClass(int courseId, int classId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Delete the class from the database
+        db.delete(TABLE_CLASSES, KEY_COURSE_FOREIGN_KEY + " = ? AND " + KEY_CLASS_ID + " = ?",
+                new String[]{String.valueOf(courseId), String.valueOf(classId)});
+        db.close();
+    }
 }
