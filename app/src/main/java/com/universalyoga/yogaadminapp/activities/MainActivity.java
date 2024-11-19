@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private YogaDatabaseHelper dbHelper;
     private ListView coursesListView;
     private Button addButton;
-    private Button editButton;  // "Search" button, which will toggle debug mode with long press
+    private Button searchButton;  // "Search" button which toggles debug mode on long press
     private TextView noCoursesTextView;
     private CourseAdapter courseAdapter;
     private View actionButtonsLayout;  // Layout containing the "Add", "Update", "Delete" buttons
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         dbHelper = new YogaDatabaseHelper(this);
         coursesListView = findViewById(R.id.coursesListView);
         addButton = findViewById(R.id.addButton);
-        editButton = findViewById(R.id.editButton);
+        searchButton = findViewById(R.id.editButton);  // The Search button
         noCoursesTextView = findViewById(R.id.noCoursesTextView);
         actionButtonsLayout = findViewById(R.id.actionButtonsLayout);  // The layout containing Add, Update, Delete buttons
         deleteButton = findViewById(R.id.deleteButton);
@@ -56,13 +56,16 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Handle the "Search" button click to toggle edit mode
-        editButton.setOnClickListener(v -> toggleSearchMode());
+        // Handle the "Search" button click to navigate to SearchActivity
+        searchButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+            startActivity(intent);
+        });
 
         // Long press the Search button to enter debug mode (show Update/Delete buttons)
-        editButton.setOnLongClickListener(v -> {
+        searchButton.setOnLongClickListener(v -> {
             toggleEditMode();
-            return true; // Indicating that the long click is consumed
+            return true;  // Indicating that the long click is consumed
         });
 
         // Handle delete action when the delete button is clicked
@@ -169,19 +172,14 @@ public class MainActivity extends AppCompatActivity {
     private void toggleEditMode() {
         if (isEditMode) {
             actionButtonsLayout.setVisibility(View.GONE);
-            editButton.setText("Search");
+            searchButton.setText("Search");
         } else {
             actionButtonsLayout.setVisibility(View.VISIBLE);
-            editButton.setText("Search");
+            searchButton.setText("Search");
         }
 
         isEditMode = !isEditMode;
         courseAdapter.notifyDataSetChanged();
-    }
-
-    // Toggle Search mode for edit button
-    private void toggleSearchMode() {
-        // Logic for search will go here later
     }
 
     private void deleteAllCourses() {

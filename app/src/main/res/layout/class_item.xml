@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:layout_marginBottom="10dp">
 
     <TextView
         android:id="@+id/classIdTextView"
@@ -11,26 +12,41 @@
         android:layout_height="wrap_content"
         android:text="Class ID"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"/>
+
+    <!-- Added TextView for the Day of the Week -->
+    <TextView
+        android:id="@+id/classDayOfWeekTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Day of Week"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
 
     <TextView
         android:id="@+id/classDateTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Date"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
 
     <TextView
         android:id="@+id/classTeacherTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Teacher"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
 
     <TextView
         android:id="@+id/classCommentTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Comment"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp"/>
+
+
 </LinearLayout>

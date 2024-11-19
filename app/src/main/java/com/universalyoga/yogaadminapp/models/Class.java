@@ -56,4 +56,9 @@ public class Class {
     public void setComment(String comment) {
         this.comment = comment;
     }
+
+    @Override
+    public String toString() {
+        return "Class ID: " + classid + "\nTeacher: " + teacher + "\nDate: " + date;
+    }
 }

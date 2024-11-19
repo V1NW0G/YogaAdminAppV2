@@ -189,6 +189,29 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
         return new Gson().toJson(aClass);
     }
 
+    public List<Class> getAllClasses() {
+        List<Class> classList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_CLASSES;  // Assuming you have a table for classes
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Class aClass = new Class(
+                        cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),  // Adjust these as per your class properties
+                        cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
+                        cursor.getString(cursor.getColumnIndex(KEY_DATE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
+                        cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
+                );
+                classList.add(aClass);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return classList;
+    }
+
     // Retrieve all pending requests
     public List<String> getPendingRequests() {
         List<String> pendingRequests = new ArrayList<>();
@@ -302,4 +325,29 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(courseId), String.valueOf(classId)});
         db.close();
     }
+
+    public List<Class> getClassesByTeacherName(String teacherName) {
+        List<Class> classList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_CLASSES + " WHERE " + KEY_TEACHER + " LIKE ?";
+        Cursor cursor = db.rawQuery(query, new String[]{"%" + teacherName + "%"});
+
+        if (cursor.moveToFirst()) {
+            do {
+                Class aClass = new Class(
+                        cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),
+                        cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
+                        cursor.getString(cursor.getColumnIndex(KEY_DATE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
+                        cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
+                );
+                classList.add(aClass);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return classList;
+    }
+
+
 }
