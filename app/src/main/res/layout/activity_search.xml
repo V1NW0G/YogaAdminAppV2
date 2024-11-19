@@ -13,6 +13,22 @@
         android:hint="Search by Teacher Name"
         android:padding="12dp" />
 
+    <!-- Button for Advanced Search -->
+    <Spinner
+        android:id="@+id/dayOfWeekSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/advancedSearchText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Advanced Search"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:padding="8dp" />
+
     <!-- ListView to show search results -->
     <ListView
         android:id="@+id/searchResultsListView"

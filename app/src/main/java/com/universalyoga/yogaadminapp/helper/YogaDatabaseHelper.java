@@ -327,27 +327,77 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<Class> getClassesByTeacherName(String teacherName) {
-        List<Class> classList = new ArrayList<>();
+        List<Class> classes = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM " + TABLE_CLASSES + " WHERE " + KEY_TEACHER + " LIKE ?";
-        Cursor cursor = db.rawQuery(query, new String[]{"%" + teacherName + "%"});
-
-        if (cursor.moveToFirst()) {
-            do {
-                Class aClass = new Class(
-                        cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),
-                        cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
-                        cursor.getString(cursor.getColumnIndex(KEY_DATE)),
-                        cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
-                        cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
-                );
-                classList.add(aClass);
-            } while (cursor.moveToNext());
+        Cursor cursor = db.query(TABLE_CLASSES, null, "teacher LIKE ?", new String[]{"%" + teacherName + "%"}, null, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Class aClass = new Class(
+                            cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
+                            cursor.getString(cursor.getColumnIndex(KEY_DATE)),
+                            cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
+                            cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
+                    );
+                    classes.add(aClass);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
-        cursor.close();
         db.close();
-        return classList;
+        return classes;
     }
+
+    public List<Class> getClassesByDayOfWeek(String dayOfWeek) {
+        List<Class> classes = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_CLASSES + " WHERE " + KEY_DAY_OF_WEEK + " = ?", new String[]{dayOfWeek});
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Class aClass = new Class(
+                            cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
+                            cursor.getString(cursor.getColumnIndex(KEY_DATE)),
+                            cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
+                            cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
+                    );
+                    classes.add(aClass);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        db.close();
+        return classes;
+    }
+
+
+
+    public List<Class> getClassesByTeacherNameAndDay(String teacherName, String dayOfWeek) {
+        List<Class> classes = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_CLASSES + " WHERE teacher LIKE ? AND day_of_week = ?", new String[]{"%" + teacherName + "%", dayOfWeek});
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    Class aClass = new Class(
+                            cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),
+                            cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
+                            cursor.getString(cursor.getColumnIndex(KEY_DATE)),
+                            cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
+                            cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
+                    );
+                    classes.add(aClass);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+        }
+        db.close();
+        return classes;
+    }
+
+
 
 
 }
