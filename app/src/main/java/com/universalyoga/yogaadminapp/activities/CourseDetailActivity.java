@@ -1,6 +1,8 @@
 package com.universalyoga.yogaadminapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +30,7 @@ public class CourseDetailActivity extends AppCompatActivity {
     private TextView courseTypeTextView;
     private TextView courseDescriptionTextView;
     private ListView classListView;
+    private Button updateDeleteButton;  // Update/Delete button to navigate to the update page
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,8 @@ public class CourseDetailActivity extends AppCompatActivity {
         courseCapacityTextView = findViewById(R.id.courseCapacityTextView);
         courseTypeTextView = findViewById(R.id.courseTypeTextView);
         courseDescriptionTextView = findViewById(R.id.courseDescriptionTextView);
-        classListView = findViewById(R.id.classListView);  // Changed from TextView to ListView
+        classListView = findViewById(R.id.classListView);
+        updateDeleteButton = findViewById(R.id.updateDeleteButton);  // Initialize the button
 
         // Get the course ID passed from MainActivity
         String courseIdString = getIntent().getStringExtra("courseId");
@@ -56,6 +60,14 @@ public class CourseDetailActivity extends AppCompatActivity {
                 int courseId = Integer.parseInt(courseIdString);  // Convert String to int
                 loadCourseDetails(courseId);  // Load course details
                 loadClassList(courseId);  // Load classes under this course
+
+                // Set up the Update/Delete button click listener
+                updateDeleteButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(CourseDetailActivity.this, CourseUpdateActivity.class);
+                    intent.putExtra("courseId", courseId);  // Pass the course ID to the update page
+                    startActivity(intent);  // Navigate to the update page
+                });
+
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Invalid course ID.", Toast.LENGTH_SHORT).show();
             }

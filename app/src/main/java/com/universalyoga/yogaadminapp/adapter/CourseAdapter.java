@@ -2,6 +2,7 @@ package com.universalyoga.yogaadminapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,6 +85,7 @@ public class CourseAdapter extends ArrayAdapter<Course> {
             if (currentCourse != null) {
                 Intent intent = new Intent(context, CourseDetailActivity.class);
                 int courseId = currentCourse.getCourseid();
+                Log.d("CourseActivity", "Passing courseId: " + courseId);  // Log the courseId to debug
                 intent.putExtra("courseId", String.valueOf(courseId));  // Pass courseId as a String
                 context.startActivity(intent);
             }

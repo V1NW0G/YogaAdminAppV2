@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- ScrollView for all the other content below the sticky Save Class button -->
+    <android.widget.ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/saveClassButton"
+        android:fillViewport="true">
+
+        <!-- LinearLayout that holds everything, wrapped inside ScrollView -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Course Update Section -->
+            <EditText
+                android:id="@+id/courseIdEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Course ID"
+                android:inputType="number" />
+
+            <Spinner
+                android:id="@+id/dayOfWeekSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/timeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Time" />
+
+            <EditText
+                android:id="@+id/durationEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Duration (in minutes)"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/capacityEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Capacity"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/priceEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Price"
+                android:inputType="numberDecimal" />
+
+            <EditText
+                android:id="@+id/typeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Type" />
+
+            <EditText
+                android:id="@+id/descriptionEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Description" />
+
+            <!-- Update/Delete Button -->
+            <Button
+                android:id="@+id/updateDeleteButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update/Delete"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Class Update Section (Form for each class record) -->
+            <TextView
+                android:id="@+id/classDetailsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Class Details"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingTop="16dp" />
+
+            <!-- Form for Each Class (this will be dynamically generated for each class) -->
+            <LinearLayout
+                android:id="@+id/classFormsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="16dp">
+
+                <!-- Each Class Form: Start with one, you can add more dynamically in Java -->
+            </LinearLayout>
+
+        </LinearLayout>
+    </android.widget.ScrollView>
+
+    <!-- Save Class Button (sticky at the top) -->
+    <Button
+        android:id="@+id/saveClassButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="Save Class"
+        android:layout_alignParentTop="true" />
+
+</android.widget.RelativeLayout>

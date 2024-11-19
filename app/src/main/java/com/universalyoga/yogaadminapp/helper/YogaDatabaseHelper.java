@@ -16,7 +16,7 @@ import java.util.List;
 public class YogaDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "yoga.db";
-    private static final int DATABASE_VERSION = 4;  // Incremented version for adding classes table
+    private static final int DATABASE_VERSION = 6;  // Incremented version for adding classes table
 
     // Courses Table
     private static final String TABLE_COURSES = "courses";
@@ -118,6 +118,7 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
     public void addCourse(Course course) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(KEY_COURSE_ID, course.getCourseid());
         values.put(KEY_DAY_OF_WEEK, course.getDayOfWeek());
         values.put(KEY_TIME, course.getTime());
         values.put(KEY_DURATION, course.getDuration());
@@ -260,5 +261,17 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return classList;
+    }
+
+    public void clearDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Delete all classes first (if any)
+        db.delete(TABLE_CLASSES, null, null);
+
+        // Delete all courses
+        db.delete(TABLE_COURSES, null, null);
+
+        db.close();
     }
 }

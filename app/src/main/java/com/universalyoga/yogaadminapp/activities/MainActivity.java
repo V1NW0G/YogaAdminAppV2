@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private CourseAdapter courseAdapter;  // Custom adapter to handle courses and "Add Class" button
     private View actionButtonsLayout;  // Layout containing the "Add", "Update", "Delete" buttons
     private boolean isEditMode = false;  // Flag to indicate if in edit mode
+    private Button deleteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         editButton = findViewById(R.id.editButton);
         noCoursesTextView = findViewById(R.id.noCoursesTextView);
         actionButtonsLayout = findViewById(R.id.actionButtonsLayout);  // The layout containing Add, Update, Delete buttons
+        deleteButton = findViewById(R.id.deleteButton);
 
         // Load and display courses when MainActivity is created
         loadCoursesFromDatabase();
@@ -54,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Handle the "Edit" button click to toggle edit mode
         editButton.setOnClickListener(v -> toggleEditMode());
+
+        deleteButton.setOnClickListener(v -> deleteAllCourses());
+
     }
 
     @Override
@@ -123,9 +129,16 @@ public class MainActivity extends AppCompatActivity {
 
             // Set up the "Add Class" button click listener
             addClassButton.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, AddClassActivity.class);
-                intent.putExtra("courseId", currentCourse.getCourseid());  // Pass course ID to AddClassActivity
-                startActivity(intent);
+                if (currentCourse != null) {
+                    // Create an intent to navigate to the AddClassActivity
+                    Intent intent = new Intent(MainActivity.this, AddClassActivity.class);
+
+                    // Pass the course ID to the AddClassActivity
+                    intent.putExtra("courseId", currentCourse.getCourseid());
+
+                    // Start the activity
+                    startActivity(intent);
+                }
             });
 
             // Set up the "View Details" button click listener
@@ -139,6 +152,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+            // Update visibility based on edit mode
+            if (isEditMode) {
+                addClassButton.setVisibility(View.GONE);  // Hide the "Add Class" button when edit mode is true
+            } else {
+                addClassButton.setVisibility(View.VISIBLE);  // Show the "Add Class" button when edit mode is false
+            }
+
             return convertView;
         }
     }
@@ -147,13 +167,35 @@ public class MainActivity extends AppCompatActivity {
     private void toggleEditMode() {
         if (isEditMode) {
             // If currently in edit mode, hide the action buttons
-            actionButtonsLayout.setVisibility(View.GONE);
+            actionButtonsLayout.setVisibility(View.VISIBLE);
             editButton.setText("Edit");  // Change text back to Edit
         } else {
             // If not in edit mode, show the action buttons
-            actionButtonsLayout.setVisibility(View.VISIBLE);
+            actionButtonsLayout.setVisibility(View.GONE);
             editButton.setText("Cancel Edit");  // Change text to Cancel Edit
         }
+
+        // Toggle the visibility of the "Add Class" button in the adapter
         isEditMode = !isEditMode;  // Toggle the flag
+
+        // Ensure that the adapter is initialized before calling notifyDataSetChanged()
+        if (courseAdapter != null) {
+            courseAdapter.notifyDataSetChanged();  // Update the adapter if it is initialized
+        }
+    }
+
+    private void deleteAllCourses() {
+        // Confirm deletion
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Confirm Deletion")
+                .setMessage("Are you sure you want to delete all courses and their associated classes?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Call the helper method to clear the database
+                    dbHelper.clearDatabase();
+                    loadCoursesFromDatabase();  // Refresh the list after deletion
+                    Toast.makeText(MainActivity.this, "All courses and classes deleted.", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }

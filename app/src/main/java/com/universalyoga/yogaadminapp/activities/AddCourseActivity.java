@@ -25,7 +25,7 @@ public class AddCourseActivity extends AppCompatActivity {
 
     private EditText courseIdEditText, timeEditText, durationEditText,
             capacityEditText, priceEditText, typeEditText, descriptionEditText;
-    private Spinner dayOfWeekSpinner;  // Spinner for selecting the day of the week
+    private Spinner dayOfWeekSpinner;  // Assuming you are using a Spinner for day of the week
     private Button saveButton;
     private YogaDatabaseHelper dbHelper;
 
@@ -47,49 +47,47 @@ public class AddCourseActivity extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         saveButton = findViewById(R.id.saveButton);
 
-        // Populate the Spinner with days of the week
+        // Set up Spinner for Day of Week
         String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, daysOfWeek);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, daysOfWeek);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dayOfWeekSpinner.setAdapter(adapter);
 
         // Set up save button click listener
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Validate the input fields
-                if (validateInputs()) {
-                    // Collect data from the user input
-                    int courseid = Integer.parseInt(courseIdEditText.getText().toString());
-                    String dayOfWeek = dayOfWeekSpinner.getSelectedItem().toString();  // Get the selected day
-                    String time = timeEditText.getText().toString();
-                    int duration = Integer.parseInt(durationEditText.getText().toString());
-                    int capacity = Integer.parseInt(capacityEditText.getText().toString());
-                    double price = Double.parseDouble(priceEditText.getText().toString());
-                    String type = typeEditText.getText().toString();
-                    String description = descriptionEditText.getText().toString();
+        saveButton.setOnClickListener(v -> {
+            // Validate the input fields
+            if (validateInputs()) {
+                // Collect data from the user input
+                int courseid = Integer.parseInt(courseIdEditText.getText().toString());
+                String dayOfWeek = dayOfWeekSpinner.getSelectedItem().toString();  // Get the selected day
+                String time = timeEditText.getText().toString();
+                int duration = Integer.parseInt(durationEditText.getText().toString());
+                int capacity = Integer.parseInt(capacityEditText.getText().toString());
+                double price = Double.parseDouble(priceEditText.getText().toString());
+                String type = typeEditText.getText().toString();
+                String description = descriptionEditText.getText().toString();
 
-                    // Create a new Course object
-                    Course newCourse = new Course(courseid, dayOfWeek, time, duration, capacity, price, type, description);
+                // Create a new Course object
+                Course newCourse = new Course(courseid, dayOfWeek, time, duration, capacity, price, type, description);
 
-                    // Update the SQLite database first
-                    dbHelper.addCourse(newCourse);
+                // Update the SQLite database first
+                dbHelper.addCourse(newCourse);
 
-                    // Check if internet connection is available
-                    if (NetworkUtils.isConnectedToInternet(AddCourseActivity.this)) {
-                        // If connected, update the backend
-                        updateBackend(newCourse);
-                    } else {
-                        // If not connected, notify the user and retry later
-                        Toast.makeText(AddCourseActivity.this, "No internet connection. Will retry later.", Toast.LENGTH_LONG).show();
-                        // Save to a retry queue or a retry table in SQLite, or handle retry logic
-                        storePendingRequest(newCourse);
-                    }
-
-                    // Close the activity and return to MainActivity
-                    finish();
+                // Check if internet connection is available
+                if (NetworkUtils.isConnectedToInternet(AddCourseActivity.this)) {
+                    // If connected, update the backend
+                    updateBackend(newCourse);
                 } else {
-                    Toast.makeText(AddCourseActivity.this, "Please fill all the fields correctly.", Toast.LENGTH_SHORT).show();
+                    // If not connected, notify the user and retry later
+                    Toast.makeText(AddCourseActivity.this, "No internet connection. Will retry later.", Toast.LENGTH_LONG).show();
+                    // Save to a retry queue or a retry table in SQLite, or handle retry logic
+                    storePendingRequest(newCourse);
                 }
+
+                // Close the activity and return to MainActivity
+                finish();
+            } else {
+                Toast.makeText(AddCourseActivity.this, "Please fill all the fields correctly.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -132,6 +130,6 @@ public class AddCourseActivity extends AppCompatActivity {
 
     private void storePendingRequest(Course newCourse) {
         // Store the course data in the pending requests table for later syncing
-        dbHelper.storePendingRequest("addCourse", newCourse);
+        dbHelper.storePendingRequest("add", newCourse);
     }
 }
