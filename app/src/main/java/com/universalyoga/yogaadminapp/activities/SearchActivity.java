@@ -9,7 +9,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,7 +25,7 @@ public class SearchActivity extends AppCompatActivity {
     private YogaDatabaseHelper dbHelper;
     private EditText searchEditText;
     private ListView searchResultsListView;
-    private TextView advancedSearchText;
+    private TextView noClassesTextView; // TextView to show "No classes found"
     private Spinner dayOfWeekSpinner;  // Spinner for Day of the Week filter
     private ArrayAdapter<Class> classAdapter;
     private List<Class> classList;
@@ -41,7 +40,7 @@ public class SearchActivity extends AppCompatActivity {
         // Initialize UI elements
         searchEditText = findViewById(R.id.searchEditText);
         searchResultsListView = findViewById(R.id.searchResultsListView);
-        advancedSearchText = findViewById(R.id.advancedSearchText);
+        noClassesTextView = findViewById(R.id.noClassesTextView); // Added TextView
         dayOfWeekSpinner = findViewById(R.id.dayOfWeekSpinner);
 
         // Set up the adapter for the ListView
@@ -57,16 +56,6 @@ public class SearchActivity extends AppCompatActivity {
 
         // Initially load all classes
         loadAllClasses();
-
-        // Handle "Advanced Search" click
-        advancedSearchText.setOnClickListener(v -> {
-            // Toggle the visibility of the spinner
-            if (dayOfWeekSpinner.getVisibility() == View.GONE) {
-                dayOfWeekSpinner.setVisibility(View.VISIBLE);  // Show Spinner
-            } else {
-                dayOfWeekSpinner.setVisibility(View.GONE);  // Hide Spinner
-            }
-        });
 
         // TextWatcher to filter classes based on teacher name
         searchEditText.addTextChangedListener(new TextWatcher() {
@@ -97,8 +86,12 @@ public class SearchActivity extends AppCompatActivity {
             classList.clear();
             classList.addAll(classes);
             classAdapter.notifyDataSetChanged();
+            searchResultsListView.setVisibility(View.VISIBLE);
+            noClassesTextView.setVisibility(View.GONE); // Hide "No classes found" message
         } else {
-            Toast.makeText(this, "No classes available.", Toast.LENGTH_SHORT).show();
+            searchResultsListView.setVisibility(View.GONE);
+            noClassesTextView.setVisibility(View.VISIBLE);
+            noClassesTextView.setText("No classes available.");
         }
     }
 
@@ -122,8 +115,13 @@ public class SearchActivity extends AppCompatActivity {
                 classList.clear();
                 classList.addAll(filteredClasses);
                 classAdapter.notifyDataSetChanged();
+                searchResultsListView.setVisibility(View.VISIBLE);
+                noClassesTextView.setVisibility(View.GONE);
             } else {
-                Toast.makeText(this, "No classes found", Toast.LENGTH_SHORT).show();
+                // No classes found, hide the ListView and show the "No classes found" message
+                searchResultsListView.setVisibility(View.GONE);
+                noClassesTextView.setVisibility(View.VISIBLE);
+                noClassesTextView.setText("No classes found for the selected filter.");
             }
         }
     }
