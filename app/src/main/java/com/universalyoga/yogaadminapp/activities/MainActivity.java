@@ -18,8 +18,14 @@ import com.universalyoga.yogaadminapp.helper.YogaDatabaseHelper;
 import com.universalyoga.yogaadminapp.models.Course;
 import com.universalyoga.yogaadminapp.models.Class;
 import com.universalyoga.yogaadminapp.adapter.ClassAdapter;
+import com.universalyoga.yogaadminapp.network.APIService;
+import com.universalyoga.yogaadminapp.network.RetrofitClient;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -187,11 +193,41 @@ public class MainActivity extends AppCompatActivity {
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure you want to delete all courses and their associated classes?")
                 .setPositiveButton("Yes", (dialog, which) -> {
+                    // First, delete all the data locally (SQLite)
                     dbHelper.clearDatabase();
-                    loadCoursesFromDatabase();  // Refresh the list after deletion
+
+                    // Then, delete all courses and classes from the backend (MongoDB)
+                    deleteAllCoursesFromBackend();
+
+                    // Refresh the list after deletion
+                    loadCoursesFromDatabase();  // This will refresh the courses list
                     Toast.makeText(MainActivity.this, "All courses and classes deleted.", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("No", null)
                 .show();
+    }
+
+    private void deleteAllCoursesFromBackend() {
+        APIService apiService = RetrofitClient.getRetrofitInstance().create(APIService.class);
+
+        // Call the backend API to delete all courses
+        Call<Void> call = apiService.deleteAllCourses();  // Assuming this API exists
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    // Successfully deleted all courses and classes from the backend
+                    Log.d("MainActivity", "All courses and classes deleted from the backend");
+                } else {
+                    Toast.makeText(MainActivity.this, "Failed to delete from the backend.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

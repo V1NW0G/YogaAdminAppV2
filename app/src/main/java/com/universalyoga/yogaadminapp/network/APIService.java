@@ -39,6 +39,9 @@ public interface APIService {
     @PUT("classes/{courseid}/{classid}")
     Call<Class> updateClass(@Path("courseid") int courseid, @Path("classid") int classid, @Body Class updatedClass);  // Endpoint to update a class
 
+    @DELETE("courses")
+    Call<Void> deleteAllCourses();  // Assuming "courses" is the endpoint for deleting all courses
+
     // DELETE a course by course ID
     @DELETE("courses/{courseid}")
     Call<Void> deleteCourse(@Path("courseid") int courseid);  // Endpoint to delete a course
