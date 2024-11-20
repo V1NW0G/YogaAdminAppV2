@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.universalyoga.yogaadminapp.R;
 import com.universalyoga.yogaadminapp.helper.YogaDatabaseHelper;
-import com.universalyoga.yogaadminapp.models.Class;  // Ensure this is the Class model for your backend
+import com.universalyoga.yogaadminapp.models.Class;
 import com.universalyoga.yogaadminapp.network.APIService;
 import com.universalyoga.yogaadminapp.network.RetrofitClient;
 import com.universalyoga.yogaadminapp.utils.NetworkUtils;
@@ -68,23 +68,32 @@ public class AddClassActivity extends AppCompatActivity {
         datePickerButton.setOnClickListener(v -> showDatePickerDialog());
 
         saveClassButton.setOnClickListener(v -> {
-            // Collect data from the input fields
-            int classid = Integer.parseInt(classIdEditText.getText().toString());
-            String date = dateEditText.getText().toString();
-            String teacher = teacherEditText.getText().toString();
-            String comment = commentEditText.getText().toString();
+            // Validate the required fields
+            String classIdText = classIdEditText.getText().toString().trim();
+            String date = dateEditText.getText().toString().trim();
+            String teacher = teacherEditText.getText().toString().trim();
+
+            // Check if required fields are filled
+            if (classIdText.isEmpty() || date.isEmpty() || teacher.isEmpty()) {
+                Toast.makeText(AddClassActivity.this, "Class ID, Date, and Teacher are required.", Toast.LENGTH_SHORT).show();
+                return; // Stop execution if fields are empty
+            }
+
+            // Parse class ID from input
+            int classId = Integer.parseInt(classIdText);
+            String comment = commentEditText.getText().toString().trim(); // Optional field
 
             // Add the class to the local SQLite database
-            if (dbHelper.addClass(classid, courseId, date, teacher, comment)) {
+            if (dbHelper.addClass(classId, courseId, date, teacher, comment)) {
                 Toast.makeText(AddClassActivity.this, "Class added successfully!", Toast.LENGTH_SHORT).show();
 
                 // Check if the device is connected to the internet
                 if (NetworkUtils.isConnectedToInternet(AddClassActivity.this)) {
                     // Update the backend (MongoDB) if there is an internet connection
-                    updateBackend(classid, courseId, date, teacher, comment);
+                    updateBackend(classId, courseId, date, teacher, comment);
                 } else {
                     // If no internet connection, save the request to sync later
-                    storePendingRequest(classid, courseId, date, teacher, comment);
+                    storePendingRequest(classId, courseId, date, teacher, comment);
                 }
 
                 finish();  // Close the activity after saving the class
