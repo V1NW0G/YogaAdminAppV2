@@ -1,6 +1,7 @@
 package com.universalyoga.yogaadminapp.activities;
 
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -244,6 +245,10 @@ public class CourseUpdateActivity extends AppCompatActivity {
                     dbHelper.deleteCourse(courseId);
                     dbHelper.deleteClassesForCourse(courseId);
                     Toast.makeText(CourseUpdateActivity.this, "Course and its classes deleted successfully.", Toast.LENGTH_SHORT).show();
+                    // Navigate back to the main activity
+                    Intent intent = new Intent(CourseUpdateActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                     finish();
                 } else {
                     Toast.makeText(CourseUpdateActivity.this, "Failed to delete course.", Toast.LENGTH_SHORT).show();
@@ -261,16 +266,26 @@ public class CourseUpdateActivity extends AppCompatActivity {
         dbHelper.storePendingRequest("deleteCourse", courseId);
     }
 
-    private void deleteClass(int courseid, int classid) {
+    private void deleteClass(int courseId, int classId) {
+        // Delete the class from the backend
         APIService apiService = RetrofitClient.getRetrofitInstance().create(APIService.class);
-        Call<Void> call = apiService.deleteClass(courseid, classid);
+        Call<Void> call = apiService.deleteClass(courseId, classId);
 
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
+                    // Successfully deleted class from backend
                     Toast.makeText(CourseUpdateActivity.this, "Class deleted successfully.", Toast.LENGTH_SHORT).show();
-                    loadClassList(courseid);
+
+                    // Delete the class from the local SQLite database
+                    dbHelper.deleteClass(courseId, classId);
+
+                    // Set the result to notify CourseDetailActivity to refresh
+                    setResult(RESULT_OK);
+
+                    // Finish the activity and return to the CourseDetailActivity
+                    finish();
                 } else {
                     Toast.makeText(CourseUpdateActivity.this, "Failed to delete class.", Toast.LENGTH_SHORT).show();
                 }
