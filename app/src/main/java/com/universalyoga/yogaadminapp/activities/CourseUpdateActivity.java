@@ -1,15 +1,15 @@
 package com.universalyoga.yogaadminapp.activities;
 
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import java.util.List;
-import android.widget.TextView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +22,9 @@ import com.universalyoga.yogaadminapp.network.APIService;
 import com.universalyoga.yogaadminapp.network.RetrofitClient;
 import com.universalyoga.yogaadminapp.utils.NetworkUtils;
 
+import java.util.Calendar;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,10 +33,11 @@ public class CourseUpdateActivity extends AppCompatActivity {
 
     private YogaDatabaseHelper dbHelper;
     private EditText courseIdEditText, timeEditText, durationEditText, capacityEditText, priceEditText, typeEditText, descriptionEditText;
-    private Button updateDeleteButton, saveClassButton;
+    private Button updateDeleteButton, saveClassButton, timeButton;
     private LinearLayout classFormsContainer;
     private Spinner dayOfWeekSpinner;
     private int courseId;
+    private int hour, minute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +58,7 @@ public class CourseUpdateActivity extends AppCompatActivity {
         saveClassButton = findViewById(R.id.saveClassButton);
         classFormsContainer = findViewById(R.id.classFormsContainer);
         dayOfWeekSpinner = findViewById(R.id.dayOfWeekSpinner);
+        timeButton = findViewById(R.id.timeButton);
 
         // Set up Spinner for Days of the Week
         String[] daysOfWeek = new String[] {
@@ -84,6 +89,8 @@ public class CourseUpdateActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Course ID is missing.", Toast.LENGTH_SHORT).show();
         }
+
+        timeButton.setOnClickListener(v -> showTimePicker()); // Time picker on button click
     }
 
     // Method to load course details from the database and display them
@@ -104,7 +111,6 @@ public class CourseUpdateActivity extends AppCompatActivity {
                     "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
             };
 
-            // Find the index of the day of the week in the daysOfWeek array
             int dayOfWeekIndex = -1;
             for (int i = 0; i < daysOfWeek.length; i++) {
                 if (daysOfWeek[i].equals(course.getDayOfWeek())) {
@@ -128,25 +134,20 @@ public class CourseUpdateActivity extends AppCompatActivity {
     private void loadClassList(int courseId) {
         List<Class> classes = dbHelper.getClassesForCourse(courseId);  // Fetch classes for the given course
 
-        // Clear the existing class forms before adding new ones
         classFormsContainer.removeAllViews();
 
         if (classes != null && !classes.isEmpty()) {
-            // Dynamically create forms for each class and populate with class data
             for (Class cls : classes) {
-                // Create a new LinearLayout for each class form
                 LinearLayout classFormContainer = new LinearLayout(this);
                 classFormContainer.setOrientation(LinearLayout.VERTICAL);
                 classFormContainer.setPadding(16, 16, 16, 16);
 
-                // Add a title for the class (Class ID)
                 TextView classTitleTextView = new TextView(this);
-                classTitleTextView.setText("Class ID: " + cls.getClassid());  // Display class ID as the title
+                classTitleTextView.setText("Class ID: " + cls.getClassid());
                 classTitleTextView.setTextSize(18);
                 classTitleTextView.setPadding(0, 16, 0, 8);
                 classFormContainer.addView(classTitleTextView);
 
-                // Create EditText fields for each class attribute
                 EditText dateEditText = new EditText(this);
                 dateEditText.setHint("Date");
                 dateEditText.setText(cls.getDate());
@@ -162,13 +163,11 @@ public class CourseUpdateActivity extends AppCompatActivity {
                 commentEditText.setText(cls.getComment());
                 classFormContainer.addView(commentEditText);
 
-                // Add a delete button for each class record
                 Button deleteClassButton = new Button(this);
                 deleteClassButton.setText("Delete Class");
-                deleteClassButton.setOnClickListener(v -> deleteClass(cls.getCourseid(), cls.getClassid()));  // Pass courseid and classid
+                deleteClassButton.setOnClickListener(v -> deleteClass(cls.getCourseid(), cls.getClassid()));
                 classFormContainer.addView(deleteClassButton);
 
-                // Add this class form to the container
                 classFormsContainer.addView(classFormContainer);
             }
         } else {
@@ -176,9 +175,7 @@ public class CourseUpdateActivity extends AppCompatActivity {
         }
     }
 
-    // Method to update the course
     private void updateCourse() {
-        // Create updated course object from input fields
         Course updatedCourse = new Course(
                 Integer.parseInt(courseIdEditText.getText().toString()),
                 dayOfWeekSpinner.getSelectedItem().toString(),
@@ -190,7 +187,6 @@ public class CourseUpdateActivity extends AppCompatActivity {
                 descriptionEditText.getText().toString()
         );
 
-        // Check for network availability before proceeding with the update
         if (NetworkUtils.isConnectedToInternet(this)) {
             updateBackend(updatedCourse);
         } else {
@@ -200,7 +196,6 @@ public class CourseUpdateActivity extends AppCompatActivity {
     }
 
     private void updateBackend(Course updatedCourse) {
-        // Use Retrofit to update the course in the backend
         APIService apiService = RetrofitClient.getRetrofitInstance().create(APIService.class);
         Call<Course> call = apiService.updateCourse(updatedCourse.getCourseid(), updatedCourse);
 
@@ -209,7 +204,7 @@ public class CourseUpdateActivity extends AppCompatActivity {
             public void onResponse(Call<Course> call, Response<Course> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(CourseUpdateActivity.this, "Course updated successfully.", Toast.LENGTH_SHORT).show();
-                    finish();  // Navigate back to CourseDetailActivity
+                    finish();
                 } else {
                     Toast.makeText(CourseUpdateActivity.this, "Failed to update course.", Toast.LENGTH_SHORT).show();
                 }
@@ -223,13 +218,10 @@ public class CourseUpdateActivity extends AppCompatActivity {
     }
 
     private void storePendingRequest(Course updatedCourse) {
-        // Store the course update in the pending requests table for later syncing
         dbHelper.storePendingRequest("updateCourse", updatedCourse);
     }
 
-    // Method to delete the course and its associated classes
     private void deleteCourseAndClasses() {
-        // Check for network availability before proceeding with the delete
         if (NetworkUtils.isConnectedToInternet(this)) {
             deleteCourseFromBackend();
         } else {
@@ -241,21 +233,18 @@ public class CourseUpdateActivity extends AppCompatActivity {
     private void deleteCourseFromBackend() {
         Log.d("CourseUpdateActivity", "Attempting to delete course with ID: " + courseId);
 
-        // Use Retrofit to delete the course in the backend
         APIService apiService = RetrofitClient.getRetrofitInstance().create(APIService.class);
         Call<Void> call = apiService.deleteCourse(courseId);
 
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                Log.d("CourseUpdateActivity", "Delete response code: " + response.code());  // Log response code
+                Log.d("CourseUpdateActivity", "Delete response code: " + response.code());
                 if (response.isSuccessful()) {
-                    // Delete the course locally after backend success
                     dbHelper.deleteCourse(courseId);
-                    // Delete associated classes
                     dbHelper.deleteClassesForCourse(courseId);
                     Toast.makeText(CourseUpdateActivity.this, "Course and its classes deleted successfully.", Toast.LENGTH_SHORT).show();
-                    finish();  // Navigate back to CourseListActivity
+                    finish();
                 } else {
                     Toast.makeText(CourseUpdateActivity.this, "Failed to delete course.", Toast.LENGTH_SHORT).show();
                 }
@@ -269,11 +258,9 @@ public class CourseUpdateActivity extends AppCompatActivity {
     }
 
     private void storePendingRequestForDelete(int courseId) {
-        // Store the delete request in the pending requests table for later syncing
         dbHelper.storePendingRequest("deleteCourse", courseId);
     }
 
-    // Method to delete a specific class
     private void deleteClass(int courseid, int classid) {
         APIService apiService = RetrofitClient.getRetrofitInstance().create(APIService.class);
         Call<Void> call = apiService.deleteClass(courseid, classid);
@@ -283,7 +270,7 @@ public class CourseUpdateActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(CourseUpdateActivity.this, "Class deleted successfully.", Toast.LENGTH_SHORT).show();
-                    loadClassList(courseid);  // Refresh the class list after deletion
+                    loadClassList(courseid);
                 } else {
                     Toast.makeText(CourseUpdateActivity.this, "Failed to delete class.", Toast.LENGTH_SHORT).show();
                 }
@@ -294,5 +281,19 @@ public class CourseUpdateActivity extends AppCompatActivity {
                 Toast.makeText(CourseUpdateActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showTimePicker() {
+        final Calendar calendar = Calendar.getInstance();
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                (view, hourOfDay, minuteOfHour) -> {
+                    String time = String.format("%02d:%02d", hourOfDay, minuteOfHour);
+                    timeEditText.setText(time);
+                }, hour, minute, true);
+
+        timePickerDialog.show();
     }
 }

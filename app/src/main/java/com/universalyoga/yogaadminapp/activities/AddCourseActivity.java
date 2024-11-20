@@ -1,5 +1,6 @@
 package com.universalyoga.yogaadminapp.activities;
 
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -17,6 +18,8 @@ import com.universalyoga.yogaadminapp.models.Course;
 import com.universalyoga.yogaadminapp.network.APIService;
 import com.universalyoga.yogaadminapp.network.RetrofitClient;
 
+import java.util.Calendar;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,8 +28,11 @@ public class AddCourseActivity extends AppCompatActivity {
 
     private EditText courseIdEditText, timeEditText, durationEditText,
             capacityEditText, priceEditText, typeEditText, descriptionEditText;
-    private Spinner dayOfWeekSpinner;  // Assuming you are using a Spinner for day of the week
-    private Button saveButton;
+    private Spinner dayOfWeekSpinner;  // Spinner for day of the week
+    private Button saveButton, timeButton;
+
+    private int hour, minute;
+
     private YogaDatabaseHelper dbHelper;
 
     @Override
@@ -39,7 +45,8 @@ public class AddCourseActivity extends AppCompatActivity {
         // Initialize UI elements
         courseIdEditText = findViewById(R.id.courseIdEditText);
         dayOfWeekSpinner = findViewById(R.id.dayOfWeekSpinner);
-        timeEditText = findViewById(R.id.timeEditText);
+        timeButton = findViewById(R.id.timeButton);  // Button to trigger time picker
+        timeEditText = findViewById(R.id.timeEditText);  // EditText to show selected time
         durationEditText = findViewById(R.id.durationEditText);
         capacityEditText = findViewById(R.id.capacityEditText);
         priceEditText = findViewById(R.id.priceEditText);
@@ -52,6 +59,8 @@ public class AddCourseActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, daysOfWeek);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dayOfWeekSpinner.setAdapter(adapter);
+
+        timeButton.setOnClickListener(v -> showTimePicker());
 
         // Set up save button click listener
         saveButton.setOnClickListener(v -> {
@@ -93,14 +102,13 @@ public class AddCourseActivity extends AppCompatActivity {
     }
 
     private boolean validateInputs() {
-        // Validate all fields before proceeding
+        // Validate all fields except the description, which is now optional
         if (courseIdEditText.getText().toString().isEmpty() ||
                 timeEditText.getText().toString().isEmpty() ||
                 durationEditText.getText().toString().isEmpty() ||
                 capacityEditText.getText().toString().isEmpty() ||
                 priceEditText.getText().toString().isEmpty() ||
-                typeEditText.getText().toString().isEmpty() ||
-                descriptionEditText.getText().toString().isEmpty()) {
+                typeEditText.getText().toString().isEmpty()) {
             return false;
         }
         return true;
@@ -131,5 +139,24 @@ public class AddCourseActivity extends AppCompatActivity {
     private void storePendingRequest(Course newCourse) {
         // Store the course data in the pending requests table for later syncing
         dbHelper.storePendingRequest("add", newCourse);
+    }
+
+    // Method to show the TimePickerDialog
+    private void showTimePicker() {
+        // Get current time
+        final Calendar calendar = Calendar.getInstance();
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
+
+        // TimePickerDialog to allow user to select time
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                (view, hourOfDay, minuteOfHour) -> {
+                    // Format the time as HH:mm
+                    String time = String.format("%02d:%02d", hourOfDay, minuteOfHour);
+                    // Set the selected time to the EditText
+                    timeEditText.setText(time);
+                }, hour, minute, true);
+
+        timePickerDialog.show();
     }
 }

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- ScrollView for all the other content below the sticky Save Class button -->
+    <!-- ScrollView for all the content below the sticky Save Class button -->
     <android.widget.ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -23,18 +23,43 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Course ID"
-                android:inputType="number" />
+                android:inputType="number"
+                android:focusable="false"
+                android:clickable="false" />
 
             <Spinner
                 android:id="@+id/dayOfWeekSpinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <EditText
-                android:id="@+id/timeEditText"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Time" />
+                android:orientation="horizontal"
+                android:paddingBottom="8dp">
+
+                <!-- Time EditText -->
+                <EditText
+                    android:id="@+id/timeEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Time"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:inputType="none" />
+
+                <!-- Button to open Time Picker -->
+                <Button
+                    android:id="@+id/timeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pick Time"
+                    android:layout_marginStart="8dp"
+                    android:onClick="showTimePicker" />
+            </LinearLayout>
 
             <EditText
                 android:id="@+id/durationEditText"
@@ -67,7 +92,9 @@
                 android:id="@+id/descriptionEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description" />
+                android:hint="Description"
+                android:focusable="true"
+                android:clickable="true" />
 
             <!-- Update/Delete Button -->
             <Button
@@ -94,8 +121,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingBottom="16dp">
-
-                <!-- Each Class Form: Start with one, you can add more dynamically in Java -->
+                <!-- Dynamically added forms for each class will go here -->
             </LinearLayout>
 
         </LinearLayout>

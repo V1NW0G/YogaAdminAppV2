@@ -12,12 +12,44 @@
         android:hint="Class ID"
         android:inputType="number" />
 
-    <!-- EditText for Date -->
-    <EditText
-        android:id="@+id/dateEditText"
+    <!-- TextView to show Day of Week -->
+    <TextView
+        android:id="@+id/classDayOfWeekTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Date" />
+        android:text=""
+        android:textColor="@color/design_default_color_error"
+        android:textSize="16sp"
+        android:paddingBottom="8dp" />
+
+    <!-- EditText for Date with Date Picker -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp">
+
+        <!-- Date EditText -->
+        <EditText
+            android:id="@+id/dateEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Pick Monday"
+            android:focusable="false"
+            android:clickable="true"
+            android:textSize="16sp"
+            android:padding="12dp"
+            android:inputType="none" />
+
+        <!-- Button to open Date Picker -->
+        <Button
+            android:id="@+id/datePickerButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick Date"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
 
     <!-- EditText for Teacher Name -->
     <EditText
@@ -39,5 +71,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Save Class" />
-
 </LinearLayout>
