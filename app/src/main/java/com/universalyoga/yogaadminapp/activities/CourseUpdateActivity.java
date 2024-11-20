@@ -92,7 +92,26 @@ public class CourseUpdateActivity extends AppCompatActivity {
         }
 
         timeButton.setOnClickListener(v -> showTimePicker()); // Time picker on button click
+
+        saveClassButton.setOnClickListener(v -> {
+            // Collect the data from the input fields
+            String time = timeEditText.getText().toString();
+            String dayOfWeek = dayOfWeekSpinner.getSelectedItem().toString();
+            int duration = Integer.parseInt(durationEditText.getText().toString());
+            int capacity = Integer.parseInt(capacityEditText.getText().toString());
+            double price = Double.parseDouble(priceEditText.getText().toString());
+            String type = typeEditText.getText().toString();
+            String description = descriptionEditText.getText().toString();
+
+            // Create an updated Course object
+            Course updatedCourse = new Course(courseId, dayOfWeek, time, duration, capacity, price, type, description);
+
+            // Update the backend
+            updateBackend(updatedCourse);
+        });
+
     }
+
 
     // Method to load course details from the database and display them
     private void loadCourseDetails(int courseId) {
@@ -204,10 +223,22 @@ public class CourseUpdateActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Course> call, Response<Course> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(CourseUpdateActivity.this, "Course updated successfully.", Toast.LENGTH_SHORT).show();
-                    finish();
+                    // After successful update in the backend, update the local database
+                    boolean isUpdatedLocally = dbHelper.updateCourse(updatedCourse);
+
+                    if (isUpdatedLocally) {
+                        Toast.makeText(CourseUpdateActivity.this, "Course updated successfully.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(CourseUpdateActivity.this, "Failed to update course in local database.", Toast.LENGTH_SHORT).show();
+                    }
+
+                    // Set the result to notify CourseDetailActivity to refresh
+                    setResult(RESULT_OK);
+
+                    // Finish the activity and return to the CourseDetailActivity
+                    finish();  // This will trigger the onActivityResult() in CourseDetailActivity
                 } else {
-                    Toast.makeText(CourseUpdateActivity.this, "Failed to update course.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CourseUpdateActivity.this, "Failed to update course in the backend.", Toast.LENGTH_SHORT).show();
                 }
             }
 

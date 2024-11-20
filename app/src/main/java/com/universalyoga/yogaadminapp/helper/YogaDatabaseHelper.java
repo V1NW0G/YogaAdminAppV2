@@ -430,6 +430,26 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
         return foundClass;
     }
 
+    public boolean updateCourse(Course updatedCourse) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_DAY_OF_WEEK, updatedCourse.getDayOfWeek());
+        values.put(KEY_TIME, updatedCourse.getTime());
+        values.put(KEY_DURATION, updatedCourse.getDuration());
+        values.put(KEY_CAPACITY, updatedCourse.getCapacity());
+        values.put(KEY_PRICE, updatedCourse.getPrice());
+        values.put(KEY_TYPE, updatedCourse.getType());
+        values.put(KEY_DESCRIPTION, updatedCourse.getDescription());
+
+        // Update the course using the course ID
+        int rowsAffected = db.update(TABLE_COURSES, values, KEY_COURSE_ID + " = ?",
+                new String[]{String.valueOf(updatedCourse.getCourseid())});
+        db.close();
+
+        return rowsAffected > 0;  // Return true if at least one row was updated
+    }
+
 
 
 }

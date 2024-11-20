@@ -15,11 +15,18 @@ import com.universalyoga.yogaadminapp.helper.YogaDatabaseHelper;
 import com.universalyoga.yogaadminapp.models.Course;
 import com.universalyoga.yogaadminapp.models.Class;
 import com.universalyoga.yogaadminapp.adapter.ClassAdapter;
+import com.universalyoga.yogaadminapp.network.APIService;
+import com.universalyoga.yogaadminapp.network.RetrofitClient;
+import com.universalyoga.yogaadminapp.utils.NetworkUtils;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    public class CourseDetailActivity extends AppCompatActivity {
+
+public class CourseDetailActivity extends AppCompatActivity {
 
         private YogaDatabaseHelper dbHelper;
         private TextView courseTitleTextView;
@@ -66,9 +73,15 @@ import java.util.List;
 
                     // Set up the Update/Delete button click listener
                     updateDeleteButton.setOnClickListener(v -> {
-                        Intent intent = new Intent(CourseDetailActivity.this, CourseUpdateActivity.class);
-                        intent.putExtra("courseId", courseId);  // Pass the course ID to the update page
-                        startActivityForResult(intent, 1);  // Start activity for result
+                        // Perform update or delete depending on action
+                        if (updateDeleteButton.getText().toString().equals("Delete Course")) {
+                            deleteCourseAndClasses();
+                        } else {
+                            // Start CourseUpdateActivity for result
+                            Intent intent = new Intent(CourseDetailActivity.this, CourseUpdateActivity.class);
+                            intent.putExtra("courseId", courseId);  // Pass the course ID to the update page
+                            startActivityForResult(intent, 1);  // Request code 1
+                        }
                     });
 
                 } catch (NumberFormatException e) {
@@ -77,6 +90,49 @@ import java.util.List;
             } else {
                 Toast.makeText(this, "Course ID is missing.", Toast.LENGTH_SHORT).show();
             }
+        }
+
+        private void deleteCourseAndClasses() {
+            if (NetworkUtils.isConnectedToInternet(this)) {
+                deleteCourseFromBackend();
+            } else {
+                storePendingRequestForDelete(courseId);
+                Toast.makeText(this, "No internet connection. Course delete saved for later.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        private void deleteCourseFromBackend() {
+            Log.d("CourseDetailActivity", "Attempting to delete course with ID: " + courseId);
+
+            APIService apiService = RetrofitClient.getRetrofitInstance().create(APIService.class);
+            Call<Void> call = apiService.deleteCourse(courseId);
+
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    Log.d("CourseDetailActivity", "Delete response code: " + response.code());
+                    if (response.isSuccessful()) {
+                        dbHelper.deleteCourse(courseId);
+                        dbHelper.deleteClassesForCourse(courseId);
+                        Toast.makeText(CourseDetailActivity.this, "Course and its classes deleted successfully.", Toast.LENGTH_SHORT).show();
+                        // Navigate back to the main activity
+                        Intent intent = new Intent(CourseDetailActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(CourseDetailActivity.this, "Failed to delete course.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(CourseDetailActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        private void storePendingRequestForDelete(int courseId) {
+            dbHelper.storePendingRequest("deleteCourse", courseId);
         }
 
         // Method to load course details from the database and display them
@@ -114,9 +170,11 @@ import java.util.List;
         protected void onActivityResult(int requestCode, int resultCode, Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
 
+            // Check if the update was successful
             if (requestCode == 1 && resultCode == RESULT_OK) {
-                // Reload the class list when the user returns from the update page
-                loadClassList(courseId);
+                // Refresh the course details from the database
+                loadCourseDetails(courseId);
+                loadClassList(courseId);  // Reload classes as well
             }
         }
 
