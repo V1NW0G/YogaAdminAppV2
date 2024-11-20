@@ -30,6 +30,7 @@
         <activity android:name=".activities.CourseDetailActivity"></activity>
         <activity android:name=".activities.CourseUpdateActivity"></activity>
         <activity android:name=".activities.SearchActivity"></activity>
+        <activity android:name=".activities.ClassDetailActivity"></activity>
     </application>
 
 </manifest>

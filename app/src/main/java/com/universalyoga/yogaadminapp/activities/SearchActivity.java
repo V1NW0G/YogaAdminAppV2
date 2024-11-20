@@ -1,5 +1,6 @@
 package com.universalyoga.yogaadminapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,6 +10,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -76,6 +78,17 @@ public class SearchActivity extends AppCompatActivity {
             public void afterTextChanged(Editable editable) {
                 // Not needed for this use case
             }
+        });
+
+        // Set the OnItemClickListener for the ListView
+        searchResultsListView.setOnItemClickListener((parent, view, position, id) -> {
+            // Get the clicked class
+            Class clickedClass = classList.get(position);
+
+            // Navigate to ClassDetailActivity and pass the clicked class ID
+            Intent intent = new Intent(SearchActivity.this, ClassDetailActivity.class);
+            intent.putExtra("classId", clickedClass.getClassid()); // Pass the classId to ClassDetailActivity
+            startActivity(intent);
         });
     }
 

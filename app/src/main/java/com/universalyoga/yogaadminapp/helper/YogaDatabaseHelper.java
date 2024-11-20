@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.universalyoga.yogaadminapp.models.Course;
 import com.universalyoga.yogaadminapp.models.Class;  // Ensure that Class model is imported for the class details
@@ -397,6 +398,37 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
         return classes;
     }
 
+    public Class getClassById(int classId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        Class foundClass = null;
+
+        try {
+            // Query to fetch class details by classId
+            cursor = db.query(TABLE_CLASSES, null, "classid = ?", new String[]{String.valueOf(classId)}, null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // Create Class object from cursor data using the constructor with arguments
+                foundClass = new Class(
+                        cursor.getInt(cursor.getColumnIndex("classid")),
+                        cursor.getInt(cursor.getColumnIndex("courseid")),
+                        cursor.getString(cursor.getColumnIndex("date")),
+                        cursor.getString(cursor.getColumnIndex("teacher")),
+                        cursor.getString(cursor.getColumnIndex("comment"))
+                );
+                Log.d("YogaDB", "Tracker\n" + foundClass);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+
+        return foundClass;
+    }
 
 
 
