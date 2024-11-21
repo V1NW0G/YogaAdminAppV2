@@ -450,6 +450,85 @@ public class YogaDatabaseHelper extends SQLiteOpenHelper {
         return rowsAffected > 0;  // Return true if at least one row was updated
     }
 
+    public List<Class> getClassesByTeacherNameDayAndDate(String teacherName, String dayOfWeek, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Class> classes = new ArrayList<>();
+
+        String query = "SELECT * FROM " + TABLE_CLASSES + " WHERE teacher = ? AND day_of_week = ? AND date = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{teacherName, dayOfWeek, date});
+
+        if (cursor.moveToFirst()) {
+            do {
+                // Create Class object with the necessary parameters
+                int classid = cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID));
+                int courseid = cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY));
+                String classDate = cursor.getString(cursor.getColumnIndex(KEY_DATE));
+                String teacher = cursor.getString(cursor.getColumnIndex(KEY_TEACHER));
+                String comment = cursor.getString(cursor.getColumnIndex(KEY_COMMENT));
+
+                // Instantiate the class object using the constructor with parameters
+                Class classObj = new Class(classid, courseid, classDate, teacher, comment);
+                classes.add(classObj);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return classes;
+    }
+
+    public List<Class> getClassesByDate(String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Class> classes = new ArrayList<>();
+
+        String query = "SELECT * FROM " + TABLE_CLASSES + " WHERE date = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{date});
+
+        if (cursor.moveToFirst()) {
+            do {
+                // Create Class object with the necessary parameters
+                int classid = cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID));
+                int courseid = cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY));
+                String classDate = cursor.getString(cursor.getColumnIndex(KEY_DATE));
+                String teacher = cursor.getString(cursor.getColumnIndex(KEY_TEACHER));
+                String comment = cursor.getString(cursor.getColumnIndex(KEY_COMMENT));
+
+                // Instantiate the class object using the constructor with parameters
+                Class classObj = new Class(classid, courseid, classDate, teacher, comment);
+                classes.add(classObj);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return classes;
+    }
+    public List<Class> getClassesByTeacherNameAndDate(String teacherName, String date) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<Class> classes = new ArrayList<>();
+
+        // SQL query to filter by teacher name and date
+        String query = "SELECT * FROM " + TABLE_CLASSES + " WHERE teacher = ? AND date = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{teacherName, date});
+
+        if (cursor.moveToFirst()) {
+            do {
+                Class classObj = new Class(
+                        cursor.getInt(cursor.getColumnIndex(KEY_CLASS_ID)),
+                        cursor.getInt(cursor.getColumnIndex(KEY_COURSE_FOREIGN_KEY)),
+                        cursor.getString(cursor.getColumnIndex(KEY_DATE)),
+                        cursor.getString(cursor.getColumnIndex(KEY_TEACHER)),
+                        cursor.getString(cursor.getColumnIndex(KEY_COMMENT))
+                );
+                classes.add(classObj);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return classes;
+    }
+
+
 
 
 }

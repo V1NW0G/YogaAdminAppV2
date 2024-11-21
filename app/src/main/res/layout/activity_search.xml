@@ -13,13 +13,16 @@
         android:hint="Search by Teacher Name"
         android:padding="12dp" />
 
-    <!-- Button for Advanced Search -->
-    <Spinner
-        android:id="@+id/dayOfWeekSpinner"
-        android:layout_width="match_parent"
+    <!-- Clear Button -->
+    <Button
+        android:id="@+id/clearButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone" />
+        android:text="Clear Filters"
+        android:layout_marginTop="8dp"
+        android:onClick="clearFilters" />
 
+    <!-- Advanced Search Section -->
     <TextView
         android:id="@+id/advancedSearchText"
         android:layout_width="wrap_content"
@@ -27,7 +30,46 @@
         android:text="Advanced Search"
         android:textColor="@android:color/black"
         android:textSize="14sp"
-        android:padding="8dp" />
+        android:padding="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="toggleAdvancedSearch" />
+
+    <LinearLayout
+        android:id="@+id/advancedSearchLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingTop="8dp">
+
+        <!-- Date Picker Section -->
+        <TextView
+            android:id="@+id/filterByDateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by Date"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:padding="8dp" />
+
+        <Button
+            android:id="@+id/datePickerButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pick Date"
+            android:onClick="showDatePickerDialog" />
+
+        <!-- Selected date TextView -->
+        <TextView
+            android:id="@+id/selectedDateTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Selected Date: None"
+            android:textColor="@android:color/black"
+            android:padding="8dp" />
+
+    </LinearLayout>
 
     <!-- ListView to show search results -->
     <ListView
@@ -38,6 +80,8 @@
         android:divider="@android:color/darker_gray"
         android:dividerHeight="0.7dp"
         android:paddingTop="8dp"/>
+
+    <!-- No Results TextView -->
     <TextView
         android:id="@+id/noClassesTextView"
         android:layout_width="match_parent"
